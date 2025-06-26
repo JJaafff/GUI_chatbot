@@ -1,0 +1,9 @@
+.env
+Jaff.py
+.venv
+build
+comments
+testin.py
+randthing.py
+__pycache__
+.idea
