@@ -100,6 +100,9 @@ st.title("🤖 J'Jarvis")
 st.subheader("Ask me something!")
 
 
+if 'chat' not in st.session_state:
+    st.session_state.chat = []
+
 user_input = st.text_input("You:", placeholder="Type your question here")
 
 if user_input:
@@ -140,8 +143,13 @@ if user_input:
         best_match_response = eval(user_input)
 
     elif best_match_response == 'ROCK PAPER SCISSORS':
-        print("This is a desktop game,check taskbar!(Close the game before prompting again.)")
         rock_paper_scissors()
         best_match_response = 'It was great to play with you'
 
-    print(f"ChatBuddy: {best_match_response}")
+    print(f"J'Jarvis: {best_match_response}")
+
+    st.session_state.chat.append(("You", user_input))
+    st.session_state.chat.append(("J'Jarvis", best_match_response))
+
+for speaker, message in st.session_state.chat:
+    st.markdown(f"**{speaker}:** {message}")
