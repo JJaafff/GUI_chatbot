@@ -99,12 +99,31 @@ predefined_inputs_to_responses = {
 st.title("🤖 J'Jarvis")
 st.subheader("Ask me something!")
 
+def find_city(city_input):
+    cities = [
+        "Tbilisi","Poti","Batumi","Kutaisi","Rustavi","Zugdidi",
+        "New York", "London", "Tokyo", "Paris", "Shanghai",
+        "Dubai", "Singapore", "Los Angeles", "Barcelona", "Rome",
+        "Istanbul", "Bangkok", "Hong Kong", "Chicago", "Toronto",
+        "Sydney", "Berlin", "Amsterdam", "San Francisco", "Moscow",
+        "Mexico City", "Mumbai", "São Paulo", "Seoul", "Beijing",
+        "Madrid", "Lisbon", "Vienna", "Dublin", "Copenhagen",
+        "Prague", "Budapest", "Warsaw", "Brussels", "Stockholm",
+        "Helsinki", "Oslo", "Athens", "Cairo", "Cape Town",
+        "Buenos Aires", "Rio de Janeiro", "Lima", "Jakarta", "Delhi",
+        "Kuala Lumpur", "Manila", "Casablanca", "Tel Aviv", "Doha"
+
+    ]
+
+    for city in cities:
+        if city.lower() in city_input:
+            return city
+
 
 if 'chat' not in st.session_state:
     st.session_state.chat = []
 
-user_input = st.text_input("You:", placeholder="Type your question here")
-
+user_input = st.text_input("You:", placeholder="Type your question here").capitalize()
 if user_input:
     best_match_response = "Sorry, I did not understand that question."
     best_match_score = 0.0
@@ -119,18 +138,20 @@ if user_input:
         best_match_response = f"The current time is: {datetime.now():%H:%M}"
 
     elif best_match_response == "GET WEATHER IN A CITY":
-        city_name = user_input.split()[-1]
-        coordinates = get_lon_lat(city_name)
-        if isinstance(coordinates, str):
-            best_match_response = coordinates
-        else:
-            lon, lat = coordinates
-            temperature = get_weather(lon, lat)
-            best_match_response = f"The weather is {temperature}°C in {city_name}."
+        city_name = find_city(user_input)
+        if not city_name:
+            best_match_response = f"Sorry, We could not find the city named {city_name}"
+        lon, lat = get_lon_lat(city_name)
+        if isinstance(lon, str):
+            best_match_response = f"Sorry, The coordinates for the city named {city_name} was not found"
+        temperature = get_weather(lon, lat)
+        best_match_response = f"The weather is {temperature}°C in {city_name}."
 
     elif best_match_response == 'WHAT DO I WEAR':
-        city_name = user_input.split()[-1]
+        city_name = find_city(user_input)
         lon, lat = get_lon_lat(city_name)
+        if isinstance(lon, str):
+            best_match_response = f"Sorry, The city named {city_name} was not found"
         temperature = get_weather(lon, lat)
         if temperature > 22:
             best_match_response = f"It is very hot there, maybe it would be great to wear Shorts and Short-sleeved T-shirt."
@@ -140,7 +161,11 @@ if user_input:
             best_match_response = f"It is very cold there, maybe it would be great to wear warmly, i would recommend Jacket and warm pants."
 
     elif best_match_response == 'Oh math':
-        best_match_response = eval(user_input)
+        try:
+            result = eval(user_input, {"__builtins__": None}, {})
+            best_match_response = f"The answer is {result}"
+        except Exception:
+            best_match_response = "Sorry, I couldn't compute that."
 
     elif best_match_response == 'ROCK PAPER SCISSORS':
         rock_paper_scissors()
