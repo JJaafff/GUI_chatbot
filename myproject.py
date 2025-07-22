@@ -1,6 +1,7 @@
 import streamlit as st
 from difflib import SequenceMatcher
 from datetime import datetime
+from deep_translator import GoogleTranslator
 import requests
 from geopy.geocoders import Nominatim
 import random
@@ -80,20 +81,29 @@ def rock_paper_scissors():
     window.show()
     app.exec_()
 
+
+def translate(text):
+    try:
+        translated = GoogleTranslator(source='auto', target='en').translate(text)
+        return f"Translated to English: {translated}"
+    except Exception as error:
+        return f"Translation failed: {error}"
+
 predefined_inputs_to_responses = {
     "Hi": "Hello, How are you doing today?",
     "What's your name": "I'm J'Jarvis, your virtual friend.",
     "How old are you": "I'm ageless, but I was coded quite recently.",
     "What can you do": "I can chat with you and tell the time or weather!",
-    "tell me the time": "GET_TIME",
+    "what is the time": "GET_TIME",
     "Who created you": "A Python programmer, Giorgi Jafaridze.",
     "Goodbye": "See you later! Take care.",
     "Thank you": "You're welcome!",
     "What's the weather in city": "GET WEATHER IN A CITY",
     "Tell me about Giorgi Jafaridze": "He is one of the greatest men who ever walked on this planet(earth)",
     "What do i wear in city": "WHAT DO I WEAR",
-    "2+2": "Oh math",
-    "Let's play rock, paper, scissors": "ROCK PAPER SCISSORS"
+    "2+2 9*9 7 / 7": "Oh math",
+    "Let's play rock, paper, scissors": "ROCK PAPER SCISSORS",
+    "Please Transalte:გამარჯობა": "Translate"
 }
 
 st.title("🤖 J'Jarvis")
@@ -171,10 +181,14 @@ if user_input:
         rock_paper_scissors()
         best_match_response = 'It was great to play with you'
 
+    elif best_match_response == "Translate":
+        user_input = user_input.split(":")
+        best_match_response = translate(user_input[1])
+
     print(f"J'Jarvis: {best_match_response}")
 
-    st.session_state.chat.append(("You", user_input))
     st.session_state.chat.append(("J'Jarvis", best_match_response))
 
 for speaker, message in st.session_state.chat:
     st.markdown(f"**{speaker}:** {message}")
+
